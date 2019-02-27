@@ -9,7 +9,14 @@ namespace HashCode2019
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            string[] files = new string[] { "example", "small", "medium", "big" };
+            foreach (var file in files)
+            {
+                Console.WriteLine($"Processing {file}");
+                var model = Load(file);
+                //model.Run();
+                Save(file, null);
+            }
         }
 
         static object Load(string file)

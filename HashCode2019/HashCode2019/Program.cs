@@ -15,6 +15,7 @@ namespace HashCode2019
                 Console.WriteLine($"Processing {file}");
                 var model = Load(file);
                 //model.Run();
+                //PUNTOS++
                 Save(file, null);
             }
         }

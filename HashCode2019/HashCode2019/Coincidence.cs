@@ -9,21 +9,21 @@ namespace HashCode2019
         public string Tag { get; set; }
         public IList<Match> Matches { get; set; }
 
-        public override int GetHashCode()
-        {
-            return 0;
-        }
+        //public override int GetHashCode()
+        //{
+        //    return 0;
+        //}
 
-        public override bool Equals(object obj)
-        {
-            if (obj == this)
-                return true;
+        //public override bool Equals(object obj)
+        //{
+        //    if (obj == this)
+        //        return true;
 
-            if (!(obj is Coincidence))
-                return false;
+        //    if (!(obj is Coincidence))
+        //        return false;
 
-            return Tag.Equals((obj as Coincidence).Tag);
-        }
+        //    return Tag.Equals((obj as Coincidence).Tag);
+        //}
     }
 
     public class Match

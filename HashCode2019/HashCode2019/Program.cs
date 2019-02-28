@@ -64,32 +64,38 @@ namespace HashCode2019
                         Tags = new HashSet<string>(tagArray)
                     });
 
-                    foreach(var currentTag in tagArray)
-                    {
-                        var coincidence = coincidences.FirstOrDefault(val => val.Tag.Equals(currentTag));
+                    //foreach(var currentTag in tagArray)
+                    //{
+                    //    var coincidence = coincidences.FirstOrDefault(val => val.Tag == currentTag);
 
-                        if (coincidence == null)
-                        {
-                            coincidence = new Coincidence()
-                            {
-                                Tag = currentTag,
-                                Matches = new List<Match>()
-                            };
+                    //    if (coincidence == null)
+                    //    {
+                    //        coincidence = new Coincidence()
+                    //        {
+                    //            Tag = currentTag,
+                    //            Matches = new List<Match>()
+                    //        };
 
-                            coincidences.Add(coincidence);
-                        }
+                    //        coincidences.Add(coincidence);
+                    //    }
 
-                        coincidence.Matches.Add(new Match() {
-                            PhotoId = currentPhotoId,
-                            NumberOfCoincidences = tagArray.Length
-                        });
-                    }
+                    //    coincidence.Matches.Add(new Match() {
+                    //        PhotoId = currentPhotoId,
+                    //        NumberOfCoincidences = tagArray.Length
+                    //    });
+                    //}
 
                     currentPhotoId++;
+                    if(currentPhotoId % 999 == 0)
+                    {
+                        Console.WriteLine($"Photos processed: { currentPhotoId }, Tags pocessed: { coincidences.Count() }");
+                    }
                 }
             }
 
-            return (photosToReturn.OrderByDescending(x => x.Tags.Count).ToList(), slidesToReturn, coincidences);
+            return (photosToReturn.OrderByDescending(x => x.Tags.Count).ToList(), 
+                        slidesToReturn.OrderByDescending(x => x.Tags.Count).ToList(), 
+                        coincidences);
         }
 
 
@@ -97,7 +103,7 @@ namespace HashCode2019
         {
             string filePath = $"./../../../Outputs/{filename}.out";
 
-            using (StreamWriter file = new StreamWriter(filePath))
+            using (StreamWriter file = new StreamWriter(filePath, false, Encoding.Default))
             {
                 file.WriteLine($"{slides.Count}");
                 foreach (Slide slide in slides)

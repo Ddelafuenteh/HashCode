@@ -14,12 +14,11 @@ namespace HashCode2019
             foreach (var file in files)
             {
                 Console.WriteLine($"Processing {file}");
+
                 var loadedModel = Load(file);
                 var model = loadedModel.Item1;
-                //model.Run();
-                //PUNTOS++
-                //prueba
-                Save(file, null);
+
+                Save(file, loadedModel.Item2);
             }
         }
 
@@ -94,13 +93,21 @@ namespace HashCode2019
         }
 
 
-        public static void Save(string file, object o)
+        public static void Save(string filename, IList<Slide> slides)
         {
-            string filename = $"Outputs/{file}.out";
-            List<string> content = new List<string>();
-            //Get object properties
+            string filePath = $"./../../../Outputs/{filename}.out";
 
-            File.WriteAllLines(filename, content.ToArray());
+            using (StreamWriter file = new StreamWriter(filePath))
+            {
+                file.WriteLine($"{slides.Count}");
+                foreach (Slide slide in slides)
+                {
+                    foreach (Photo photo in slide.Photos)
+                        file.Write($"{photo.ID} ");
+
+                    file.Write("\n");
+                }
+            }
         }
     }
 }

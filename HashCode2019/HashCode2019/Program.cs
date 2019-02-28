@@ -8,17 +8,19 @@ namespace HashCode2019
 {
     public class Program
     {
+        public static HashSet<Slide> selectedSlides = new HashSet<Slide>();
+
         static void Main(string[] args)
         {
             string[] files = new string[] { "a_example", "b_lovely_landscapes", "c_memorable_moments", "d_pet_pictures", "e_shiny_selfies" };
-            foreach (var file in files)
+            foreach (var file in files.Take(2))
             {
                 Console.WriteLine($"Processing {file}");
 
                 var loadedModel = Load(file);
-                var model = loadedModel.Item1;
+                var result = Run(loadedModel.Item1, loadedModel.Item2.OrderByDescending(s => s.Tags.Count).ToList());
+                Save(file, result);
 
-                Save(file, loadedModel.Item2);
             }
         }
 
@@ -58,7 +60,8 @@ namespace HashCode2019
                         slidesToReturn.Add(new Slide(currentPhoto));
                     }
 
-                    photosToReturn.Add(new Photo() {
+                    photosToReturn.Add(new Photo()
+                    {
                         Orientation = content[0].ElementAt(0) == 'H' ? Orientation.Horizontal : Orientation.Vertical,
                         ID = currentPhotoId,
                         Tags = new HashSet<string>(tagArray)
@@ -66,7 +69,7 @@ namespace HashCode2019
 
                     //foreach(var currentTag in tagArray)
                     //{
-                    //    var coincidence = coincidences.FirstOrDefault(val => val.Tag == currentTag);
+                    //    var coincidence = coincidences.FirstOrDefault(val => val.Tag.Equals(currentTag));
 
                     //    if (coincidence == null)
                     //    {
@@ -86,24 +89,18 @@ namespace HashCode2019
                     //}
 
                     currentPhotoId++;
-                    if(currentPhotoId % 999 == 0)
-                    {
-                        Console.WriteLine($"Photos processed: { currentPhotoId }, Tags pocessed: { coincidences.Count() }");
-                    }
                 }
             }
 
-            return (photosToReturn.OrderByDescending(x => x.Tags.Count).ToList(), 
-                        slidesToReturn.OrderByDescending(x => x.Tags.Count).ToList(), 
-                        coincidences);
+            return (photosToReturn.OrderByDescending(x => x.Tags.Count).ToList(), slidesToReturn, coincidences);
         }
 
 
         public static void Save(string filename, IList<Slide> slides)
         {
-            string filePath = $"./../../../Outputs/{filename}.out";
+            string filePath = $"Outputs/{filename}.out";
 
-            using (StreamWriter file = new StreamWriter(filePath, false, Encoding.Default))
+            using (StreamWriter file = new StreamWriter(filePath))
             {
                 file.WriteLine($"{slides.Count}");
                 foreach (Slide slide in slides)
@@ -113,5 +110,26 @@ namespace HashCode2019
                 }
             }
         }
+
+        public static List<Slide> Run(IList<Photo> photos, List<Slide> slides)
+        {
+            List<Slide> slideShow = new List<Slide>();
+            slideShow.Add(slides[0]);
+
+            slides.RemoveAt(0);
+            foreach (var slide in slides)
+            {
+                if (!selectedSlides.Contains(slide))
+                {
+                    Slide s = Utils.GetBestSlice(slideShow.Last(), slides);
+                    if (s != null)
+                        slideShow.Add(s);
+                }
+
+            }
+
+            return slideShow;
+        }
     }
 }
+  

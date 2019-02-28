@@ -45,7 +45,7 @@ namespace HashCode2019
                 }
             }
 
-            return toRet;
+            return toRet.OrderByDescending(x => x.Tags.Count).ToList();
         }
 
 

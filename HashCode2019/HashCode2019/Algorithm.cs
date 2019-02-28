@@ -39,10 +39,12 @@ namespace HashCode2019
         {
             var slideShow = new SlideShow();
 
-            var selectedSlide = TotalSlides.FirstOrDefault();
             var correlationIndex = Math.Floor(Math.Sqrt(TotalSlides.LastOrDefault()?.Tags.Count ?? 2));
+            var firstIteration = TotalSlides.Where(slide => slide.Tags.Count() < correlationIndex);
+            var rngesus = new Random(DateTime.Now.Millisecond);
+            var selectedSlide = TotalSlides[rngesus.Next() % TotalSlides.Count];
 
-            while(selectedSlide != null && TotalSlides.Count > 0)
+            while (selectedSlide != null && TotalSlides.Count > 0)
             {
                 var lowerLimit = selectedSlide.Tags.Count() - correlationIndex;
                 var upperLimit = selectedSlide.Tags.Count() + correlationIndex;

@@ -22,45 +22,29 @@ namespace HashCode2019
             }
         }
 
-        static object Load(string filePath)
+        static IList<Photo> Load(string filePath)
         {
-            // string filename = $"Inputs/{file}.in";
-            // string[] fileContent = File.ReadAllLines(filename);
-            // int[] parameters = fileContent[0].Split(' ').Select((s) => int.Parse(s)).ToArray();
-
-            // int rows = parameters[0];
-            // int columns = parameters[1];
-
-            ////Read file content
-
-            // return null;
-
-            //var toLoad = new Pizza();
+            var toRet = new List<Photo>();
 
             using (var file = new StreamReader($"Inputs/{ filePath }", Encoding.Default))
             {
-                var firstInput = file.ReadLine().Split(' ').Select(val => int.Parse(val)).ToArray();
-
-                // Header information
-                //toLoad.Information = new PizzaInformation()
-                //{
-                //    TotalAmountOfRows = firstInput[0],
-                //    TotalAmountOfColumns = firstInput[1],
-                //    MinimumAmountPerIngredient = firstInput[2],
-                //    MaximumIngredientsInTotal = firstInput[3]
-                //};
-
-                //toLoad.Deliciousness = new char[firstInput[0]][];
-                var currentIndex = 0;
+                var totalPhotos = file.ReadLine().Split(' ').Select(val => int.Parse(val)).ToArray();
 
                 while (!file.EndOfStream)
                 {
-                    var content = file.ReadLine();
-                    //toLoad.Deliciousness[currentIndex++] = file.ReadLine().ToCharArray();
+                    var content = file.ReadLine().Split(' ');
+                    string[] leftover = new string[content.Length - 2];
+                    Array.Copy(content, 2, leftover, 0, content.Length - 2);
+
+                    toRet.Add(new Photo() {
+                        Orientation = content[0].ElementAt(0) == 'H' ? Orientation.Horizontal : Orientation.Vertical,
+                        ID = int.Parse(content[1]),
+                        Tags = new HashSet<string>(leftover)
+                    });
                 }
             }
 
-            return null;
+            return toRet;
         }
 
 

@@ -11,6 +11,7 @@ namespace HashCode2019
         static void Main(string[] args)
         {
             string[] files = new string[] { "a_example", "b_lovely_landscapes", "c_memorable_moments", "d_pet_pictures", "e_shiny_selfies" };
+            //string[] files = new string[] { "b_lovely_landscapes" };
             foreach (var file in files)
             {
                 Console.WriteLine($"Processing {file}");
@@ -18,7 +19,15 @@ namespace HashCode2019
                 var loadedModel = Load(file);
                 var model = loadedModel.Item1;
 
-                Save(file, loadedModel.Item2);
+                var algorithm = new Algorithm()
+                {
+                    Photos = loadedModel.Item1,
+                    TotalSlides = loadedModel.Item2
+                };
+
+                var result = algorithm.Execute();
+
+                SaveEnumerable(file, result.SlidesTransition, result.SlidesTransition.Count);
             }
         }
 
@@ -86,10 +95,6 @@ namespace HashCode2019
                     //}
 
                     currentPhotoId++;
-                    if(currentPhotoId % 999 == 0)
-                    {
-                        Console.WriteLine($"Photos processed: { currentPhotoId }, Tags pocessed: { coincidences.Count() }");
-                    }
                 }
             }
 
@@ -106,6 +111,21 @@ namespace HashCode2019
             using (StreamWriter file = new StreamWriter(filePath, false, Encoding.Default))
             {
                 file.WriteLine($"{slides.Count}");
+                foreach (Slide slide in slides)
+                {
+                    var ids = slide.Photos.Select(val => val.ID.ToString()).ToArray();
+                    file.WriteLine(string.Join(' ', ids));
+                }
+            }
+        }
+
+        public static void SaveEnumerable(string filename, IEnumerable<Slide> slides, int totalCount)
+        {
+            string filePath = $"./../../../Outputs/{filename}.out";
+
+            using (StreamWriter file = new StreamWriter(filePath, false, Encoding.Default))
+            {
+                file.WriteLine($"{ totalCount }");
                 foreach (Slide slide in slides)
                 {
                     var ids = slide.Photos.Select(val => val.ID.ToString()).ToArray();

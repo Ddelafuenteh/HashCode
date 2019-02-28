@@ -10,7 +10,7 @@ namespace HashCode2019
     {
         static void Main(string[] args)
         {
-            string[] files = new string[] { "example", "small", "medium", "big" };
+            string[] files = new string[] { "a_example", "b_lovely_landscapes", "c_memorable_moments", "d_pet_pictures", "e_shiny_selfies" };
             foreach (var file in files)
             {
                 Console.WriteLine($"Processing {file}");
@@ -25,8 +25,9 @@ namespace HashCode2019
         static IList<Photo> Load(string filePath)
         {
             var toRet = new List<Photo>();
+            string filename = $"./../../../Inputs/{filePath}.txt";
 
-            using (var file = new StreamReader($"Inputs/{ filePath }", Encoding.Default))
+            using (var file = new StreamReader(filename, Encoding.Default))
             {
                 var totalPhotos = file.ReadLine().Split(' ').Select(val => int.Parse(val)).ToArray();
 

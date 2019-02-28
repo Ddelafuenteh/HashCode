@@ -25,12 +25,11 @@ namespace HashCode2019
             {
                 var rngesus = new Random(DateTime.Now.Millisecond);
                 var firstPhoto = Photos[rngesus.Next() % Photos.Count];
+                Photos.Remove(firstPhoto);
                 var secondPhoto = Photos[rngesus.Next() % Photos.Count];
+                Photos.Remove(secondPhoto);
 
                 TotalSlides.Add(new Slide(firstPhoto, secondPhoto));
-
-                Photos.Remove(firstPhoto);
-                Photos.Remove(secondPhoto);
             }
 
             TotalSlides = TotalSlides.OrderBy(x => x.Tags.Count).ToList();

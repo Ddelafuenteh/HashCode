@@ -67,33 +67,6 @@ namespace HashCode2019
                         slidesToReturn.Add(new Slide(currentPhoto));
                     }
 
-                    photosToReturn.Add(new Photo() {
-                        Orientation = content[0].ElementAt(0) == 'H' ? Orientation.Horizontal : Orientation.Vertical,
-                        ID = currentPhotoId,
-                        Tags = new HashSet<string>(tagArray)
-                    });
-
-                    //foreach(var currentTag in tagArray)
-                    //{
-                    //    var coincidence = coincidences.FirstOrDefault(val => val.Tag == currentTag);
-
-                    //    if (coincidence == null)
-                    //    {
-                    //        coincidence = new Coincidence()
-                    //        {
-                    //            Tag = currentTag,
-                    //            Matches = new List<Match>()
-                    //        };
-
-                    //        coincidences.Add(coincidence);
-                    //    }
-
-                    //    coincidence.Matches.Add(new Match() {
-                    //        PhotoId = currentPhotoId,
-                    //        NumberOfCoincidences = tagArray.Length
-                    //    });
-                    //}
-
                     currentPhotoId++;
                 }
             }

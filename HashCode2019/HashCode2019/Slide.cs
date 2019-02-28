@@ -31,12 +31,12 @@ namespace HashCode2019
             get
             {
                 if ((Photos?.Count() ?? 0) == 0) return new HashSet<string>();
-                if (this.Photos.Count() == 1) return this.Photos.First().Tags;
+                if (Photos.Count() == 1) return Photos.First().Tags;
 
                 var first = Photos.ElementAt(0);
                 var second = Photos.ElementAt(1);
 
-                return first.Tags.Intersect(second.Tags).Distinct().ToHashSet();
+                return first.Tags.Union(second.Tags).Distinct().ToHashSet();
             }
         }
     }

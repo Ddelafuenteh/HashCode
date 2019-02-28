@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace HashCode2019
@@ -23,6 +24,20 @@ namespace HashCode2019
                 photo1,
                 photo2
             };
+        }
+
+        public HashSet<string> Tags
+        {
+            get
+            {
+                if ((Photos?.Count() ?? 0) == 0) return new HashSet<string>();
+                if (this.Photos.Count() == 1) return this.Photos.First().Tags;
+
+                var first = Photos.ElementAt(0);
+                var second = Photos.ElementAt(1);
+
+                return first.Tags.Intersect(second.Tags).Distinct().ToHashSet();
+            }
         }
     }
 }

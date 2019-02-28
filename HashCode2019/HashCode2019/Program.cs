@@ -14,7 +14,8 @@ namespace HashCode2019
             foreach (var file in files)
             {
                 Console.WriteLine($"Processing {file}");
-                var model = Load(file).Item1;
+                var loadedModel = Load(file);
+                var model = loadedModel.Item1;
                 //model.Run();
                 //PUNTOS++
                 //prueba
@@ -22,9 +23,11 @@ namespace HashCode2019
             }
         }
 
-        static (IList<Photo>, HashSet<Coincidence>) Load(string filePath)
+        static (IList<Photo>, IList<Slide>, HashSet<Coincidence>) Load(string filePath)
         {
-            var toRet = new List<Photo>();
+            var photosToReturn = new List<Photo>();
+            var slidesToReturn = new List<Slide>();
+
             string filename = $"./../../../Inputs/{filePath}.txt";
             var currentPhotoId = 0;
 
@@ -40,7 +43,23 @@ namespace HashCode2019
                     string[] tagArray = new string[int.Parse(content[1])];
                     Array.Copy(content, 2, tagArray, 0, int.Parse(content[1]));
 
-                    toRet.Add(new Photo() {
+                    var currentPhoto = new Photo()
+                    {
+                        Orientation = content[0].ElementAt(0) == 'H' ? Orientation.Horizontal : Orientation.Vertical,
+                        ID = currentPhotoId,
+                        Tags = new HashSet<string>(tagArray)
+                    };
+
+                    if (currentPhoto.Orientation == Orientation.Vertical)
+                    {
+                        photosToReturn.Add(currentPhoto);
+                    }
+                    else
+                    {
+                        slidesToReturn.Add(new Slide(currentPhoto));
+                    }
+
+                    photosToReturn.Add(new Photo() {
                         Orientation = content[0].ElementAt(0) == 'H' ? Orientation.Horizontal : Orientation.Vertical,
                         ID = currentPhotoId,
                         Tags = new HashSet<string>(tagArray)
@@ -71,7 +90,7 @@ namespace HashCode2019
                 }
             }
 
-            return (toRet.OrderByDescending(x => x.Tags.Count).ToList(), coincidences);
+            return (photosToReturn.OrderByDescending(x => x.Tags.Count).ToList(), slidesToReturn, coincidences);
         }
 
 

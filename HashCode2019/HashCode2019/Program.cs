@@ -102,10 +102,8 @@ namespace HashCode2019
                 file.WriteLine($"{slides.Count}");
                 foreach (Slide slide in slides)
                 {
-                    foreach (Photo photo in slide.Photos)
-                        file.Write($"{photo.ID} ");
-
-                    file.Write("\n");
+                    var ids = slide.Photos.Select(val => val.ID.ToString()).ToArray();
+                    file.WriteLine(string.Join(' ', ids));
                 }
             }
         }

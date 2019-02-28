@@ -28,7 +28,7 @@ namespace HashCode2019
             var photosToReturn = new List<Photo>();
             var slidesToReturn = new List<Slide>();
 
-            string filename = $"./../../../Inputs/{filePath}.txt";
+            string filename = $"Inputs/{filePath}.txt";
             var currentPhotoId = 0;
 
             var coincidences = new HashSet<Coincidence>();

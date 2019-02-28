@@ -26,6 +26,7 @@ namespace HashCode2019
         {
             var toRet = new List<Photo>();
             string filename = $"./../../../Inputs/{filePath}.txt";
+            var currentPhotoId = 0;
 
             using (var file = new StreamReader(filename, Encoding.Default))
             {
@@ -35,11 +36,11 @@ namespace HashCode2019
                 {
                     var content = file.ReadLine().Split(' ');
                     string[] leftover = new string[content.Length - 2];
-                    Array.Copy(content, 2, leftover, 0, content.Length - 2);
+                    Array.Copy(content, 2, leftover, 0, int.Parse(content[1]));
 
                     toRet.Add(new Photo() {
                         Orientation = content[0].ElementAt(0) == 'H' ? Orientation.Horizontal : Orientation.Vertical,
-                        ID = int.Parse(content[1]),
+                        ID = currentPhotoId++,
                         Tags = new HashSet<string>(leftover)
                     });
                 }

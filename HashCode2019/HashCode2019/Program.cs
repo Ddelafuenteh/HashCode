@@ -12,13 +12,13 @@ namespace HashCode2019
 
         static void Main(string[] args)
         {
-            string[] files = new string[] { "a_example", "b_lovely_landscapes" ,"c_memorable_moments", "d_pet_pictures", "e_shiny_selfies" };
+            string[] files = new string[] { "a_example", "b_lovely_landscapes", "c_memorable_moments", "d_pet_pictures", "e_shiny_selfies" };
             foreach (var file in files)
             {
                 Console.WriteLine($"Processing {file}");
 
                 var loadedModel = Load(file);
-                var result = Run(loadedModel.Item1);
+                var result = Run(loadedModel.Item1.ToList());
                 Save(file, result);
 
             }
@@ -81,52 +81,104 @@ namespace HashCode2019
 
         }
 
-        public static List<Slide> Run(IList<Slide> slides)
+        public static List<Slide> Run(List<Slide> slides)
         {
-            List<Slide> slideShow = new List<Slide>();
+            List<Slide> SalidaProcesada;
+            List<Slide> SalidaAProcesar;
+            List<Slide> slideShowOutput = new List<Slide>();
 
-            GetAllSlidesOrderDescending(slides, slideShow);
+            List<Slide> slideVertical = slides.Where(x => x.Photos[0].Orientation == Orientation.Vertical).ToList();
+            List<Slide> slideHorizontal = slides.Where(x => x.Photos[0].Orientation == Orientation.Horizontal).ToList();
 
-            List<Slide> bestSlidesScores = new List<Slide>();
-            List<Slide> SlidesScoresProccessed = new List<Slide>(slideShow);
-
-            foreach (var slide in slideShow)
+            bool AllVertical = slides.TrueForAll(x => x.Photos[0].Orientation == Orientation.Vertical);
+            bool AllHorizontal = slides.TrueForAll(x => x.Photos[0].Orientation == Orientation.Horizontal);
+            bool proccesedWithBestSlides = AllVertical == AllHorizontal;
+            if (!AllVertical)
             {
-                Slide bestSlide = Utils.GetBestSlice(slide, SlidesScoresProccessed);
-                bestSlidesScores.Add(bestSlide);
-                SlidesScoresProccessed.Remove(bestSlide);
+
+                int middleSize = slideVertical.Count / 2;
+
+                List<Slide> slideVerticalBeforeMiddle = slideVertical.Take(middleSize).ToList();
+                List<Slide> restSlideVertical = slideVertical.TakeLast(middleSize).ToList();
+
+                GetAllSlidesOrder(slideShowOutput, slideVerticalBeforeMiddle, restSlideVertical);
+                List<Slide> SlideVerticalDsscending = slideShowOutput.OrderByDescending(x => x.Tags.Count).ToList();
+                SalidaProcesada = SlideVerticalDsscending.Concat(slideHorizontal).OrderByDescending(x => x.Tags.Count).ToList();
+                SalidaAProcesar = SlideVerticalDsscending.Concat(slideHorizontal).OrderByDescending(x => x.Tags.Count).ToList();
 
             }
+            else
+            {
+                GetAllSlidesOrderDescending(slides,slideShowOutput);
+                SalidaAProcesar = new List<Slide>(slideShowOutput);
+                SalidaProcesada = new List<Slide>(slideShowOutput);
+            }
 
-            return bestSlidesScores.Union(SlidesScoresProccessed).ToList();
+
+            
+
+            List<Slide> Salida = new List<Slide>();
+            
+            foreach (Slide currentSlide in SalidaAProcesar)
+            {
+                if (proccesedWithBestSlides) {
+                    Salida.Add(currentSlide);
+                    SalidaProcesada.Remove(currentSlide);
+                    Slide slide = Utils.GetBestSlice(currentSlide, SalidaProcesada);
+                    if(slide != null) { 
+                        Salida.Add(slide);
+                        SalidaProcesada.Remove(slide);
+                    }
+                }
+                else
+                { 
+                    Salida.Add(currentSlide);
+                    SalidaProcesada.Remove(currentSlide);
+                }
+            }
+
+            return Salida;
+        }
+        private static void GetAllSlidesOrder(List<Slide> output, List<Slide> slideShowA, List<Slide> slideShowD)
+        {
+            if (!slideShowA.Any() || !slideShowD.Any())
+                return;
+
+            for (int i=0; i < slideShowA.Count; i++)
+            {
+                Slide slideVertical = new Slide(slideShowA[i].Photos[0], slideShowA[i].Tags);
+                slideVertical.Photos.Add(slideShowD[i].Photos[0]);
+                slideVertical.Tags = slideVertical.Tags.Union(slideShowD[i].Tags).ToHashSet();
+                output.Add(slideVertical);
+            }
+        
         }
 
-        private static void GetAllSlidesOrderDescending(IList<Slide> slides, List<Slide> slideShow)
+
+        private static void GetAllSlidesOrderDescending(List<Slide> slideShow, List<Slide> slideShowOutput)
         {
             int positionVertical = -1;
-            foreach (var slide in slides)
-            {
-                if (slide.Photos[0].Orientation == Orientation.Vertical)
+            for(int i = 0; i < slideShow.Count-1; i++) {
+                if (slideShow[i].Photos[0].Orientation == Orientation.Vertical)
                 {
                     if (positionVertical == -1)
                     {
-                        slideShow.Add(new Slide(slide.Photos[0], slide.Tags));
-                        positionVertical = slideShow.Count - 1;
+                        positionVertical = slideShowOutput.Count - 1;
+                        slideShowOutput.Add(new Slide(slideShow[i].Photos[0], slideShow[i].Tags));
                     }
                     else
                     {
-                        slideShow[positionVertical].Photos.Add(slide.Photos[0]);
-                        slideShow[positionVertical].Tags = slideShow[positionVertical].Tags.Union(slide.Tags).ToHashSet();
+                        slideShowOutput[positionVertical].Photos.Add(slideShow[i].Photos[0]);
+                        slideShowOutput[positionVertical].Tags = slideShowOutput[positionVertical].Tags.Union(slideShow[i].Tags).ToHashSet();
                         positionVertical = -1;
                     }
                 }
                 else
                 {
-                    slideShow.Add(new Slide(slide.Photos[0], slide.Tags));
+                    Slide slideHorizontal = new Slide(slideShow[i].Photos[0], slideShow[i].Tags);
+                    slideShowOutput.Add(slideHorizontal);
                 }
-
-            }
-            slideShow = slideShow.OrderByDescending(x => x.Tags.Count).ToList();
+            }     
         }
     }
 }

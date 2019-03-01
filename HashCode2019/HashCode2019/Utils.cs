@@ -17,10 +17,10 @@ namespace HashCode2019
 
         public static Slide GetBestSlice(Slide currentSlide, List<Slide> slides)
         {
-            Slide bestSlide = slides.FirstOrDefault();
-            var bestScore = 0;
+            Slide bestSlide = null;
 
-            for (int i = 0; i < 2000 && slides.Count > 1999; i++)
+            var bestScore = 0;
+            for (int i = 0; i < slides.Count; i++)
             {
                 var slide = slides[i];
 
@@ -32,7 +32,7 @@ namespace HashCode2019
                     bestScore = score;
                 }
 
-                if ((currentSlide.Tags.Count / 3) <= bestScore)
+                if ((currentSlide.Tags.Count / 2) == bestScore)
                     break;
             }
 

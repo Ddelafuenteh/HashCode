@@ -12,19 +12,19 @@ namespace HashCode2019
 
         static void Main(string[] args)
         {
-            string[] files = new string[] { "a_example", "b_lovely_landscapes", "c_memorable_moments", "d_pet_pictures", "e_shiny_selfies" };
-            foreach (var file in files.Take(2))
+            string[] files = new string[] { "a_example", "b_lovely_landscapes" ,"c_memorable_moments", "d_pet_pictures", "e_shiny_selfies" };
+            foreach (var file in files)
             {
                 Console.WriteLine($"Processing {file}");
 
                 var loadedModel = Load(file);
-                var result = Run(loadedModel.Item1, loadedModel.Item2.OrderByDescending(s => s.Tags.Count).ToList());
+                var result = Run(loadedModel.Item1);
                 Save(file, result);
 
             }
         }
 
-        static (IList<Photo>, IList<Slide>, HashSet<Coincidence>) Load(string filePath)
+        static (IList<Slide>, HashSet<Coincidence>) Load(string filePath)
         {
             var photosToReturn = new List<Photo>();
             var slidesToReturn = new List<Slide>();
@@ -36,8 +36,10 @@ namespace HashCode2019
 
             using (var file = new StreamReader(filename, Encoding.Default))
             {
-                var totalPhotos = file.ReadLine().Split(' ').Select(val => int.Parse(val)).ToArray();
 
+                var totalPhotos = file.ReadLine().Split(' ').Select(val => int.Parse(val)).ToArray();
+                int positionVertical = -1;
+                int cont = 0;
                 while (!file.EndOfStream)
                 {
                     var content = file.ReadLine().Split(' ');
@@ -47,52 +49,19 @@ namespace HashCode2019
                     var currentPhoto = new Photo()
                     {
                         Orientation = content[0].ElementAt(0) == 'H' ? Orientation.Horizontal : Orientation.Vertical,
-                        ID = currentPhotoId,
-                        Tags = new HashSet<string>(tagArray)
+                        ID = currentPhotoId
                     };
 
-                    if (currentPhoto.Orientation == Orientation.Vertical)
-                    {
-                        photosToReturn.Add(currentPhoto);
-                    }
-                    else
-                    {
-                        slidesToReturn.Add(new Slide(currentPhoto));
-                    }
-
-                    photosToReturn.Add(new Photo()
-                    {
-                        Orientation = content[0].ElementAt(0) == 'H' ? Orientation.Horizontal : Orientation.Vertical,
-                        ID = currentPhotoId,
-                        Tags = new HashSet<string>(tagArray)
-                    });
-
-                    //foreach(var currentTag in tagArray)
-                    //{
-                    //    var coincidence = coincidences.FirstOrDefault(val => val.Tag.Equals(currentTag));
-
-                    //    if (coincidence == null)
-                    //    {
-                    //        coincidence = new Coincidence()
-                    //        {
-                    //            Tag = currentTag,
-                    //            Matches = new List<Match>()
-                    //        };
-
-                    //        coincidences.Add(coincidence);
-                    //    }
-
-                    //    coincidence.Matches.Add(new Match() {
-                    //        PhotoId = currentPhotoId,
-                    //        NumberOfCoincidences = tagArray.Length
-                    //    });
-                    //}
+                    slidesToReturn.Add(new Slide(currentPhoto,tagArray.ToHashSet()));                
 
                     currentPhotoId++;
                 }
             }
 
-            return (photosToReturn.OrderByDescending(x => x.Tags.Count).ToList(), slidesToReturn, coincidences);
+
+            
+
+            return (slidesToReturn.OrderByDescending(x => x.Tags.Count).ToList(), coincidences);
         }
 
 
@@ -100,35 +69,64 @@ namespace HashCode2019
         {
             string filePath = $"Outputs/{filename}.out";
 
-            using (StreamWriter file = new StreamWriter(filePath))
-            {
-                file.WriteLine($"{slides.Count}");
-                foreach (Slide slide in slides)
+                using (StreamWriter file = new StreamWriter(filePath))
                 {
-                    var ids = slide.Photos.Select(val => val.ID.ToString()).ToArray();
-                    file.WriteLine(string.Join(' ', ids));
+                    file.WriteLine($"{slides.Count}");
+                    foreach (Slide slide in slides)
+                    {
+                        var ids = slide.Photos.Select(val => val.ID.ToString()).ToArray();
+                        file.WriteLine(string.Join(' ', ids));
+                    }
                 }
-            }
+
         }
 
-        public static List<Slide> Run(IList<Photo> photos, List<Slide> slides)
+        public static List<Slide> Run(IList<Slide> slides)
         {
             List<Slide> slideShow = new List<Slide>();
-            slideShow.Add(slides[0]);
 
-            slides.RemoveAt(0);
-            foreach (var slide in slides)
+            GetAllSlidesOrderDescending(slides, slideShow);
+
+            List<Slide> bestSlidesScores = new List<Slide>();
+            List<Slide> SlidesScoresProccessed = new List<Slide>(slideShow);
+
+            foreach (var slide in slideShow)
             {
-                if (!selectedSlides.Contains(slide))
-                {
-                    Slide s = Utils.GetBestSlice(slideShow.Last(), slides);
-                    if (s != null)
-                        slideShow.Add(s);
-                }
+                Slide bestSlide = Utils.GetBestSlice(slide, SlidesScoresProccessed);
+                bestSlidesScores.Add(bestSlide);
+                SlidesScoresProccessed.Remove(bestSlide);
 
             }
 
-            return slideShow;
+            return bestSlidesScores.Union(SlidesScoresProccessed).ToList();
+        }
+
+        private static void GetAllSlidesOrderDescending(IList<Slide> slides, List<Slide> slideShow)
+        {
+            int positionVertical = -1;
+            foreach (var slide in slides)
+            {
+                if (slide.Photos[0].Orientation == Orientation.Vertical)
+                {
+                    if (positionVertical == -1)
+                    {
+                        slideShow.Add(new Slide(slide.Photos[0], slide.Tags));
+                        positionVertical = slideShow.Count - 1;
+                    }
+                    else
+                    {
+                        slideShow[positionVertical].Photos.Add(slide.Photos[0]);
+                        slideShow[positionVertical].Tags = slideShow[positionVertical].Tags.Union(slide.Tags).ToHashSet();
+                        positionVertical = -1;
+                    }
+                }
+                else
+                {
+                    slideShow.Add(new Slide(slide.Photos[0], slide.Tags));
+                }
+
+            }
+            slideShow = slideShow.OrderByDescending(x => x.Tags.Count).ToList();
         }
     }
 }

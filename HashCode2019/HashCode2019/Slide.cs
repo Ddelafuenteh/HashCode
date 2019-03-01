@@ -9,6 +9,18 @@ namespace HashCode2019
     {
         public List<Photo> Photos { get; set; }
 
+        public HashSet<string> Tags { get; set; }
+
+        public Slide(Photo photo, HashSet<string> tags)
+        {
+            Photos = new List<Photo>
+            {
+                photo
+            };
+
+            Tags = tags;
+        }
+
 
         public Slide(Photo photo)
         {
@@ -24,20 +36,6 @@ namespace HashCode2019
                 photo1,
                 photo2
             };
-        }
-
-        public HashSet<string> Tags
-        {
-            get
-            {
-                if ((Photos?.Count() ?? 0) == 0) return new HashSet<string>();
-                if (Photos.Count() == 1) return Photos.First().Tags;
-
-                var first = Photos.ElementAt(0);
-                var second = Photos.ElementAt(1);
-
-                return first.Tags.Union(second.Tags).Distinct().ToHashSet();
-            }
         }
     }
 }

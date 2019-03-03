@@ -8,6 +8,7 @@ namespace HashCode2019
     {
         public int ID { get; set; }
         public Orientation Orientation { get; set; }
+        public HashSet<string> Tags { get; set; }
     }
 
 

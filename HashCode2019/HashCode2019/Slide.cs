@@ -36,6 +36,7 @@ namespace HashCode2019
                 photo1,
                 photo2
             };
+            Tags = new HashSet<string>(photo1.Tags.Concat(photo2.Tags));
         }
     }
 }
